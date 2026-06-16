@@ -182,6 +182,7 @@ class ToolMenu(Menu):
 class PanTool(Drag):
 
     dimensions: Dimensions = ...
+    pan_together: Literal["none", "cross", "all"] = ...
 
 @dataclass
 class ClickPanTool(PlotActionTool):
