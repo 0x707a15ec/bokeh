@@ -10,7 +10,7 @@ for the label values.
 from numpy import arange, linspace, pi, sin
 
 from bokeh.layouts import column
-from bokeh.models import (CustomJS, LinearAxis, Range1d, Select,
+from bokeh.models import (CustomJS, LinearAxis, PanTool, Range1d, Select,
                           WheelZoomTool, ZoomInTool, ZoomOutTool)
 from bokeh.palettes import Sunset6
 from bokeh.plotting import figure, show
@@ -21,7 +21,7 @@ y2 = linspace(0, 100, len(x))
 
 blue, red = Sunset6[2], Sunset6[5]
 
-p = figure(x_range=(-2*pi, 2*pi), y_range=(-1, 1), tools="pan,box_zoom,save,reset")
+p = figure(x_range=(-2*pi, 2*pi), y_range=(-1, 1), tools="box_zoom,save,reset")
 p.background_fill_color = "#fafafa"
 
 blue_circles = p.scatter(x, y, line_color="black", fill_color=blue, size=12)
@@ -54,6 +54,9 @@ p.add_layout(ax3, 'below')
 wheel_zoom = WheelZoomTool()
 p.add_tools(wheel_zoom)
 
+pan = PanTool()
+p.add_tools(pan)
+
 p.toolbar.active_scroll = wheel_zoom
 
 zoom_in_blue = ZoomInTool(renderers=[blue_circles], description="Zoom in blue circles")
@@ -64,13 +67,22 @@ zoom_in_red = ZoomInTool(renderers=[red_circles], description="Zoom in red circl
 zoom_out_red = ZoomOutTool(renderers=[red_circles], description="Zoom out red circles")
 p.add_tools(zoom_in_red, zoom_out_red)
 
-select = Select(title="Zoom together:", options=["none", "cross", "all"], value=wheel_zoom.zoom_together)
-select.js_on_change("value", CustomJS(
-    args=dict(select=select, wheel_zoom=wheel_zoom),
+select_zoom = Select(title="Zoom together:", options=["none", "cross", "all"], value=wheel_zoom.zoom_together)
+select_zoom.js_on_change("value", CustomJS(
+    args=dict(select_zoom=select_zoom, wheel_zoom=wheel_zoom),
     code="""\
-export default ({select, wheel_zoom}) => {
-  wheel_zoom.zoom_together = select.value
+export default ({select_zoom, wheel_zoom}) => {
+  wheel_zoom.zoom_together = select_zoom.value
 }
 """,
 ))
-show(column(select, p))
+select_pan = Select(title="Pan together:", options=["none", "cross", "all"], value=pan.pan_together)
+select_pan.js_on_change("value", CustomJS(
+    args=dict(select_pan=select_pan, pan=pan),
+    code="""\
+export default ({select_pan, pan}) => {
+  pan.pan_together = select_pan.value
+}
+""",
+))
+show(column(select_zoom, select_pan, p))
