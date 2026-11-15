@@ -16,32 +16,32 @@ import type {KeyModifiers} from "@bokehjs/core/ui_gestures"
 describe("PanTool", () => {
 
   async function mkplot(tool: Tool): Promise<PlotView> {
-    const plot = new Plot({
+    const plot = Plot.create({
       width: 400,
       height: 400,
       min_border: 0,
-      x_range: new Range1d({start: 0, end: 1}),
-      y_range: new Range1d({start: 0, end: 1}),
+      x_range: Range1d.create({start: 0, end: 1}),
+      y_range: Range1d.create({start: 0, end: 1}),
     })
     plot.add_tools(tool)
-    plot.add_layout(new LinearAxis(), "above")
-    plot.add_layout(new LinearAxis(), "left")
+    plot.add_layout(LinearAxis.create(), "above")
+    plot.add_layout(LinearAxis.create(), "left")
     const {view} = await display(plot)
     return view
   }
 
   async function mkplot_with_extra_y(tool: Tool): Promise<PlotView> {
-    const plot = new Plot({
+    const plot = Plot.create({
       width: 400,
       height: 400,
       min_border: 0,
-      x_range: new Range1d({start: 0, end: 1}),
-      y_range: new Range1d({start: 0, end: 1}),
+      x_range: Range1d.create({start: 0, end: 1}),
+      y_range: Range1d.create({start: 0, end: 1}),
     })
-    plot.extra_y_ranges = {y2: new Range1d({start: 0, end: 10})}
+    plot.extra_y_ranges = {y2: Range1d.create({start: 0, end: 10})}
     plot.add_tools(tool)
-    plot.add_layout(new LinearAxis(), "left")
-    plot.add_layout(new LinearAxis({y_range_name: "y2"}), "right")
+    plot.add_layout(LinearAxis.create(), "left")
+    plot.add_layout(LinearAxis.create({y_range_name: "y2"}), "right")
     const {view} = await display(plot)
     return view
   }
@@ -75,7 +75,7 @@ describe("PanTool", () => {
     const native_ev = new PointerEvent("pointermove")
 
     it("'all' panning on y-axis moves all y-ranges but not x", async () => {
-      const tool = new PanTool({dimensions: "both", pan_together: "all"})
+      const tool = PanTool.create({dimensions: "both", pan_together: "all"})
       const plot_view = await mkplot_with_extra_y(tool)
       const tool_view = plot_view.owner.get_one(tool)
 
@@ -93,7 +93,7 @@ describe("PanTool", () => {
     })
 
     it("'none' panning on y-axis moves only the clicked y-range", async () => {
-      const tool = new PanTool({dimensions: "both", pan_together: "none"})
+      const tool = PanTool.create({dimensions: "both", pan_together: "none"})
       const plot_view = await mkplot_with_extra_y(tool)
       const tool_view = plot_view.owner.get_one(tool)
 
@@ -111,7 +111,7 @@ describe("PanTool", () => {
     })
 
     it("'cross' panning on y-axis moves the clicked y-range and its cross x-range", async () => {
-      const tool = new PanTool({dimensions: "both", pan_together: "cross"})
+      const tool = PanTool.create({dimensions: "both", pan_together: "cross"})
       const plot_view = await mkplot_with_extra_y(tool)
       const tool_view = plot_view.owner.get_one(tool)
 
@@ -131,7 +131,7 @@ describe("PanTool", () => {
 
     it("panning inside the frame always moves all ranges regardless of pan_together", async () => {
       for (const pan_together of ["all", "none", "cross"] as const) {
-        const tool = new PanTool({dimensions: "both", pan_together})
+        const tool = PanTool.create({dimensions: "both", pan_together})
         const plot_view = await mkplot_with_extra_y(tool)
         const tool_view = plot_view.owner.get_one(tool)
 
@@ -152,7 +152,7 @@ describe("PanTool", () => {
 
   describe("should support cursor", () => {
     it("width dimensions='both'", async () => {
-      const tool = new PanTool({dimensions: "both"})
+      const tool = PanTool.create({dimensions: "both"})
       const plot_view = await mkplot(tool)
 
       await expect_cursor(plot_view, xy(200, 200), xy(220, 220), "move")
@@ -163,7 +163,7 @@ describe("PanTool", () => {
     })
 
     it("width dimensions='width'", async () => {
-      const tool = new PanTool({dimensions: "width"})
+      const tool = PanTool.create({dimensions: "width"})
       const plot_view = await mkplot(tool)
 
       await expect_cursor(plot_view, xy(200, 200), xy(220, 220), "ew-resize")
@@ -174,7 +174,7 @@ describe("PanTool", () => {
     })
 
     it("width dimensions='height'", async () => {
-      const tool = new PanTool({dimensions: "height"})
+      const tool = PanTool.create({dimensions: "height"})
       const plot_view = await mkplot(tool)
 
       await expect_cursor(plot_view, xy(200, 200), xy(220, 220), "ns-resize")
